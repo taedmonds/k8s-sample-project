@@ -94,3 +94,5 @@ helm uninstall mlflow -n mlflow
   * Secrets are applied
   * PostgreSQL user + database exist
   * MLflow pod can reach PostgreSQL service
+
+kubectl port-forward svc/kafka 9092:9092 -n kafka

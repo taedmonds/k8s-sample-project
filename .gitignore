@@ -1,2 +1,4 @@
 dev
 mongo/replicaset.key
+helm/charts/*.tgz
+.DS_Store

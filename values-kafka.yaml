@@ -2,20 +2,47 @@ image:
   repository: bitnamilegacy/kafka
   pullPolicy: IfNotPresent
 
-replicaCount: 3
-
 kraft:
   enabled: true
 
 controller:
   replicaCount: 1
 
+broker:
+  replicaCount: 1
+
 persistence:
   enabled: true
   size: 10Gi
-  storageClass: local-path
+  storageClass: local-path  
 
 resources:
   requests:
     cpu: 500m
     memory: 1Gi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+# externalAccess:
+#   enabled: true 
+#   broker:
+#     service:
+#       type: NodePort 
+#       nodePorts: 
+#         - "30994"
+
+#   controller:
+#     service:
+#       type: NodePort
+#       nodePorts:
+#         - "30995"
+
+# for local deployment
+listeners:
+  client:
+    protocol: PLAINTEXT     
+  interbroker:
+    protocol: PLAINTEXT 
+  controller:
+    protocol: PLAINTEXT

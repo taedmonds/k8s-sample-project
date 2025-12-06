@@ -1,0 +1,36 @@
+image:
+  repository: bitnamilegacy/minio
+  tag: latest
+  pullPolicy: IfNotPresent
+
+console:
+ image:
+   repository: bitnamilegacy/minio-object-browser
+   tag: latest
+
+mode: standalone
+
+auth:
+  existingSecret: minio-root-secret
+  rootUserSecretKey: MINIO_ROOT_USER
+  rootPasswordSecretKey: MINIO_ROOT_PASSWORD
+
+defaultBuckets: mlflow-artifacts
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: local-path
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+service:
+  type: ClusterIP
+  ports:
+    api: 9000

@@ -65,12 +65,12 @@ artifactRoot:
     enabled: true
     bucket: "mlflow-artifacts"
     existingSecret: 
-      name: mlflow-minio-secret
-      keyOfAccessKeyId: AWS_ACCESS_KEY_ID
-      keyOfSecretAccessKey: AWS_SECRET_ACCESS_KEY
+      name: minio-root-secret
+      keyOfAccessKeyId: MINIO_ROOT_USER
+      keyOfSecretAccessKey: MINIO_ROOT_PASSWORD
 
 extraEnvVars:
- MLFLOW_S3_ENDPOINT_URL: "http://minio-service:9000"
+ MLFLOW_S3_ENDPOINT_URL: "http://minio.mlflow.svc.cluster.local:9000"
 
 ingress:
   enabled: false
