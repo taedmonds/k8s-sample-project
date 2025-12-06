@@ -1,0 +1,53 @@
+image:
+  repository: bitnami/mongodb
+  pullPolicy: IfNotPresent
+
+architecture: replicaset
+
+volumePermissions:
+  enabled: true
+
+replicaCount: 3
+
+arbiter:
+  enabled: false
+
+auth:
+  enabled: true
+  existingSecret: mongodb-auth-secret
+  database: sample_db
+  username: mongouser
+
+containerSecurityContext:
+  enabled: true
+  runAsNonRoot: true
+  runAsUser: 1001
+
+persistence:
+  enabled: true
+  size: 8Gi
+  resourcePolicy: keep
+  storageClass: local-path
+
+extraEnvVars:
+  - name: MONGODB_READONLY_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: mongodb-auth-secret
+        key: readonly-password
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+initdbScripts:
+  init.js: |
+    db.createUser({
+      user: "readonly",
+      pwd: _getEnv("MONGODB_READONLY_PASSWORD"),
+      roles: [{ role: "read", db: "sample_db" }]
+    });

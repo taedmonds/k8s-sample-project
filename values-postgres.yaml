@@ -1,0 +1,21 @@
+image:
+  debug: true
+
+auth:
+  enablePostgresUser: true
+  existingSecret: postgres-database-secret
+  database: auth
+
+primary:
+  persistence:
+    enabled: true
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
+  initdb:
+      user: "postgres"
+      password: "mlflow_password"
+      scripts:
+        my_init_script.sql: |
+          CREATE DATABASE "mlflow_db";
+          CREATE USER mlflow WITH PASSWORD 'mlflow_password' SUPERUSER;

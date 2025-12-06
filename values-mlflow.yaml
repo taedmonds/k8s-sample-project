@@ -1,0 +1,76 @@
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 5000
+  
+auth:
+  enabled: true
+  existingAdminSecret:
+    name: auth-admin-secret
+  postgres:
+    enabled: true
+    host: mlflow-postgresql.db.svc.cluster.local
+    port: 5432
+    database: auth
+    existingSecret:
+      name: postgres-database-secret
+
+backendStore:
+  databaseMigration: true
+  existingDatabaseSecret:
+      name: postgres-database-secret
+  postgres:
+    enabled: true
+    host: mlflow-postgresql.db.svc.cluster.local
+    port: 5432
+    database: mlflow_db
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 5000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 5000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+
+resources:
+  requests:
+    cpu: 300m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+artifactRoot:
+  s3:
+    enabled: true
+    bucket: "mlflow-artifacts"
+    existingSecret: 
+      name: mlflow-minio-secret
+      keyOfAccessKeyId: AWS_ACCESS_KEY_ID
+      keyOfSecretAccessKey: AWS_SECRET_ACCESS_KEY
+
+extraEnvVars:
+ MLFLOW_S3_ENDPOINT_URL: "http://minio-service:9000"
+
+ingress:
+  enabled: false

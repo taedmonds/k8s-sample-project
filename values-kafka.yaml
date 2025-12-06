@@ -1,0 +1,21 @@
+image:
+  repository: bitnamilegacy/kafka
+  pullPolicy: IfNotPresent
+
+replicaCount: 3
+
+kraft:
+  enabled: true
+
+controller:
+  replicaCount: 1
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: local-path
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
