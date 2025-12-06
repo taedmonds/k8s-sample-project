@@ -1,0 +1,223 @@
+global:
+  storageClass: local-path
+
+mongodb:
+  fullnameOverride: mongodb
+  image:
+    repository: bitnami/mongodb
+    pullPolicy: IfNotPresent
+
+  architecture: replicaset
+
+  volumePermissions:
+    enabled: true
+
+  replicaCount: 3
+
+  arbiter:
+    enabled: false
+
+  auth:
+    enabled: true
+    existingSecret: mongodb-auth-secret
+    database: sample_db
+    username: mongouser
+
+  containerSecurityContext:
+    enabled: true
+    runAsNonRoot: true
+    runAsUser: 1001
+
+  persistence:
+    enabled: true
+    size: 8Gi
+    resourcePolicy: keep
+    storageClass: local-path
+
+  extraEnvVars:
+    - name: MONGODB_READONLY_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mongodb-auth-secret
+          key: readonly-password
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+  initdbScripts:
+    init.js: |
+      db.createUser({
+        user: "readonly",
+        pwd: _getEnv("MONGODB_READONLY_PASSWORD"),
+        roles: [{ role: "read", db: "sample_db" }]
+      });
+
+minio:
+  mode: standalone
+  image:
+    repository: bitnamilegacy/minio
+    tag: latest
+    pullPolicy: IfNotPresent
+  console:
+    image:
+      repository: bitnamilegacy/minio-object-browser
+      tag: latest
+  auth:
+    existingSecret: minio-root-secret
+    rootUserSecretKey: MINIO_ROOT_USER
+    rootPasswordSecretKey: MINIO_ROOT_PASSWORD
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: local-path
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+  service:
+    type: ClusterIP
+    ports:
+      api: 9000
+  buckets:
+    - name: mlflow-artifacts
+      policy: none
+      purge: false
+
+postgresql:
+  namespace: data-platform
+  auth:
+    enablePostgresUser: true
+    existingSecret: postgres-database-secret
+    database: auth
+
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+      accessModes:
+        - ReadWriteOnce
+    initdb:
+        user: "postgres"
+        password: "mlflow_password"
+        scripts:
+          my_init_script.sql: |
+            CREATE DATABASE "mlflow_db";
+            CREATE USER mlflow WITH PASSWORD 'mlflow_password' SUPERUSER;
+
+mlflow:
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 5000
+    
+  auth:
+    enabled: true
+    existingAdminSecret:
+      name: auth-admin-secret
+    postgres:
+      enabled: true
+      host: data-platform-postgresql.data-platform.svc.cluster.local
+      port: 5432
+      database: auth
+      existingSecret:
+        name: postgres-database-secret
+
+  backendStore:
+    databaseMigration: true
+    existingDatabaseSecret:
+        name: postgres-database-secret
+    postgres:
+      enabled: true
+      host: data-platform-postgresql.data-platform.svc.cluster.local
+      port: 5432
+      database: mlflow_db
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 5000
+    initialDelaySeconds: 10
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 5000
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+  resources:
+    requests:
+      cpu: 300m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+  artifactRoot:
+    s3:
+      enabled: true
+      bucket: "mlflow-artifacts"
+      existingSecret: 
+        name: minio-root-secret
+        keyOfAccessKeyId: MINIO_ROOT_USER
+        keyOfSecretAccessKey: MINIO_ROOT_PASSWORD
+
+  extraEnvVars:
+    MLFLOW_S3_ENDPOINT_URL: "http://data-platform-minio.data-platform.svc.cluster.local:9000"
+
+  ingress:
+    enabled: false
+
+kafka:
+  image:
+    repository: bitnamilegacy/kafka
+    pullPolicy: IfNotPresent
+
+  kraft:
+    enabled: true
+
+  controller:
+    replicaCount: 1
+
+  broker:
+    replicaCount: 1
+
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: local-path  
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+
+  # for local deployment
+  listeners:
+    client:
+      protocol: PLAINTEXT     
+    interbroker:
+      protocol: PLAINTEXT 
+    controller:
+      protocol: PLAINTEXT

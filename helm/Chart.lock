@@ -1,0 +1,18 @@
+dependencies:
+- name: mongodb
+  repository: https://charts.bitnami.com/bitnami
+  version: 18.1.10
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 18.1.13
+- name: minio
+  repository: https://charts.bitnami.com/bitnami
+  version: 17.0.21
+- name: mlflow
+  repository: file://charts/mlflow
+  version: 1.8.0
+- name: kafka
+  repository: https://charts.bitnami.com/bitnami
+  version: 32.4.3
+digest: sha256:b76de4d60b6bee10a320a9475c189a62dfa58f30ad5f6e0254504d40d950ef43
+generated: "2025-12-06T21:55:31.794086+05:30"
