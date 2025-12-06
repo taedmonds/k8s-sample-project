@@ -56,8 +56,25 @@ helm upgrade --install mlflow community-charts/mlflow \
 MLflow will automatically run DB migrations using the Postgres settings from the values file.
 
 ---
+Got it! Here's a simplified version:
 
-## 6. Uninstall MLflow
+---
+
+### 6. View MLflow Dashboard
+
+To access the MLflow dashboard, use port forwarding with this command:
+
+```sh
+kubectl port-forward svc/mlflow 5000:5000 -n mlflow
+```
+
+Now, open your browser and go to:
+
+```
+http://localhost:5000
+```
+
+## 7. Uninstall MLflow
 
 ```sh
 helm uninstall mlflow -n mlflow
