@@ -9,10 +9,10 @@ dependencies:
   repository: https://charts.bitnami.com/bitnami
   version: 17.0.21
 - name: mlflow
-  repository: file://charts/mlflow
+  repository: https://community-charts.github.io/helm-charts
   version: 1.8.0
 - name: kafka
   repository: https://charts.bitnami.com/bitnami
   version: 32.4.3
-digest: sha256:b76de4d60b6bee10a320a9475c189a62dfa58f30ad5f6e0254504d40d950ef43
-generated: "2025-12-06T21:55:31.794086+05:30"
+digest: sha256:162688f6979fb43cebd60da8b711f759cf271948f7ed9b0c08c0703793e15c87
+generated: "2025-12-08T09:35:19.750204+05:30"
