@@ -1,21 +1,14 @@
 image:
-  repository: bitnamilegacy/minio
-  tag: latest
+  repository: minio/minio
   pullPolicy: IfNotPresent
-
-console:
- image:
-   repository: bitnamilegacy/minio-object-browser
-   tag: latest
 
 mode: standalone
 
-auth:
-  existingSecret: minio-root-secret
-  rootUserSecretKey: MINIO_ROOT_USER
-  rootPasswordSecretKey: MINIO_ROOT_PASSWORD
+existingSecret: minio-root-secret
 
-defaultBuckets: mlflow-artifacts
+buckets:
+  - name: mlflow-artifacts
+    policy: none
 
 persistence:
   enabled: true
@@ -32,5 +25,6 @@ resources:
 
 service:
   type: ClusterIP
-  ports:
-    api: 9000
+  port: 9000
+
+    

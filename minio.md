@@ -20,14 +20,14 @@ kubectl apply -f ./minio/secrets.yaml
 ## 3. Add / Update Bitnami Helm Repository
 
 ```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add minio https://charts.min.io/
 helm repo update
 ```
 
 ## 4. Deploy MinIO
 
 ```bash
-helm upgrade --install minio bitnami/minio \
+helm upgrade --install minio minio/minio \
   --namespace mlflow \
   -f values-minio.yaml
 ```
@@ -36,7 +36,7 @@ helm upgrade --install minio bitnami/minio \
 
 ```bash
 # Web Console (MinIO Browser)
-kubectl port-forward svc/minio-console 9090:9090 -n mlflow
+kubectl port-forward svc/minio-console 9001:9001 -n mlflow
 # → open http://localhost:9090
 # Login: minioadmin / minioadmin1234
 
@@ -65,8 +65,8 @@ mlflow:
       bucket: mlflow-artifacts
       existingSecret:
         name: minio-root-secret
-        keyOfAccessKeyId: MINIO_ROOT_USER
-        keyOfSecretAccessKey: MINIO_ROOT_PASSWORD
+        keyOfAccessKeyId: awsAccessKeyId
+        keyOfSecretAccessKey: awsSecretAccessKey
 ```
 
 ## 8. Uninstall MinIO

@@ -59,35 +59,28 @@ mongodb:
 
 minio:
   enabled: true
-  mode: standalone
   image:
-    repository: bitnamilegacy/minio
-    tag: latest
+    repository: minio/minio
     pullPolicy: IfNotPresent
-  console:
-    image:
-      repository: bitnamilegacy/minio-object-browser
-      tag: latest
-  auth:
-    existingSecret: minio-root-secret
-    rootUserSecretKey: MINIO_ROOT_USER
-    rootPasswordSecretKey: MINIO_ROOT_PASSWORD
-  persistence:
-    enabled: true
-    size: 20Gi
-    storageClass: local-path
-  resources:
-    requests:
-      memory: 512Mi
-      cpu: 250m
-  service:
-    type: ClusterIP
-    ports:
-      api: 9000
+  mode: standalone
+  existingSecret: minio-root-secret
   buckets:
     - name: mlflow-artifacts
       policy: none
-      purge: false
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: local-path
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  service:
+    type: ClusterIP
+    port: 9000
 
 postgresql:
   namespace: data-platform
@@ -178,8 +171,8 @@ mlflow:
       bucket: "mlflow-artifacts"
       existingSecret: 
         name: minio-root-secret
-        keyOfAccessKeyId: MINIO_ROOT_USER
-        keyOfSecretAccessKey: MINIO_ROOT_PASSWORD
+        keyOfAccessKeyId: awsAccessKeyId
+        keyOfSecretAccessKey: awsSecretAccessKey
 
   extraEnvVars:
     MLFLOW_S3_ENDPOINT_URL: "http://data-platform-minio.data-platform.svc.cluster.local:9000"
