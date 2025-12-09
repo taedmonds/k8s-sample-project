@@ -23,6 +23,6 @@ dependencies:
     version: 1.8.0
     repository: "https://community-charts.github.io/helm-charts"
 
-  - name: kafka
+  - name: strimzi-kafka-operator
     version: 0.49.1
-    repository: https://strimzi.io/charts
+    repository: https://strimzi.io/charts/
