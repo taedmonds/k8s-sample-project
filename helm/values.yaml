@@ -181,63 +181,25 @@ mlflow:
     enabled: false
 
 kafka:
-  image:
-    repository: bitnamilegacy/kafka
-    pullPolicy: IfNotPresent
+  replicas: 1
 
-  kraft:
-    enabled: true
+  watchNamespaces: ['data-platform']
+  watchAnyNamespace: false
 
-  controller:
-    replicaCount: 1
-
-  broker:
-    replicaCount: 1
-
-  persistence:
-    enabled: true
-    size: 10Gi
-    storageClass: local-path  
+  defaultImageRegistry: quay.io
+  defaultImageRepository: strimzi
+  defaultImageTag: 0.49.1
 
   resources:
-    requests:
-      cpu: 500m
-      memory: 1Gi
     limits:
-      cpu: "2"
-      memory: 2Gi
-
-  externalAccess:
-    enabled: true 
-    autoDiscovery:
-      enabled: false
-    broker:
-      service:
-        type: NodePort 
-        nodePorts: 
-          - "30994"
-
-    controller:
-      service:
-        type: NodePort
-        nodePorts:
-          - "30995"
-
-  extraEnvVars:
-    - name: KAFKA_CFG_ADVERTISED_LISTENERS
-      value: |
-        CLIENT://data-platform-kafka-broker-0.kafka-broker-headless.data-platform.svc.cluster.local:9092,
-        INTERNAL://data-platform-kafka-broker-0.kafka-broker-headless.data-platform.svc.cluster.local:9094,
-        EXTERNAL://localhost:9094
-    - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
-      value: CLIENT:PLAINTEXT,INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
-
-  listeners:
-    client:
-      protocol: PLAINTEXT     
-    interbroker:
-      protocol: PLAINTEXT
-    controller:
-      protocol: PLAINTEXT
-    external:
-      protocol: PLAINTEXT
+      memory: 512Mi
+      cpu: 1000m
+    requests:
+      memory: 512Mi
+      cpu: 200m
+  livenessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 30
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 30

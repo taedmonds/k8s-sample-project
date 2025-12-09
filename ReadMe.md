@@ -21,10 +21,8 @@ kubectl create namespace data-platform
 
 ### 2. Apply secrets
 
-(Your MongoDB, PostgreSQL, MinIO, MLflow secrets)
-
 ```bash
-kubectl apply -f secrets/ -n data-platform
+kubectl apply -f artifacts/secrets/ -n data-platform
 ```
 
 ### 3. Install local-path storage (for Colima)
@@ -46,7 +44,14 @@ helm dependency update ./helm
 helm upgrade --install data-platform ./helm \
   --namespace data-platform
 ```
-### 6. Undeploy everything with ONE command
+
+### 6. Apply kafka cluster artifacts
+
+```bash
+kubectl apply -f artifacts/kafka/ -n data-platform
+```
+
+### 7. Undeploy everything with ONE command
 
 ```bash
 helm uninstall data-platform -n data-platform
@@ -57,14 +62,3 @@ helm uninstall data-platform -n data-platform
 ```bash
 kubectl config set-context --current --namespace=data-platform
 ```
-
----
-
-Let me know if you want an equally simple uninstall section.
-
-
-## Issues
-
-- How to find the exact version (tag) of an image
-
-Each guide contains the commands needed to install and uninstall the service.
