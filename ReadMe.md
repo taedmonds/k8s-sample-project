@@ -13,51 +13,58 @@ Got you — here is a **very simple and short** Helm deployment section.
 
 ## Helm Deployment
 
-### 1. Create namespace
+You have two options to deploy the Data Platform:
+
+> 1. **Automatic**: Run `./init.sh` to deploy everything automatically.
+> 2. **Manual**: Follow the steps below to deploy piece by piece.
+
+### Manual Deployment Steps
+
+#### 1. Create namespace
 
 ```bash
 kubectl create namespace data-platform
 ```
 
-### 2. Apply secrets
+#### 2. Apply secrets
 
 ```bash
 kubectl apply -f artifacts/secrets/ -n data-platform
 ```
 
-### 3. Install local-path storage (for Colima)
+#### 3. Install local-path storage (for Colima)
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
 kubectl patch storageclass local-path -p '{"metadata":{"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 ```
 
-### 4. Download Helm dependencies
+#### 4. Download Helm dependencies
 
 ```bash
 helm dependency update ./helm
 ```
 
-### 5. Deploy everything with ONE command
+#### 5. Deploy everything with ONE command
 
 ```bash
 helm upgrade --install data-platform ./helm \
   --namespace data-platform
 ```
 
-### 6. Apply kafka cluster artifacts
+#### 6. Apply kafka cluster artifacts
 
 ```bash
 kubectl apply -f artifacts/kafka/ -n data-platform
 ```
 
-### 7. Undeploy everything with ONE command
+#### 7. Undeploy everything with ONE command
 
 ```bash
 helm uninstall data-platform -n data-platform
 ```
 
-### (Optional) Set namespace as default for debug
+#### (Optional) Set namespace as default for debug
 
 ```bash
 kubectl config set-context --current --namespace=data-platform
