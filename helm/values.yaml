@@ -76,6 +76,15 @@ minio:
   buckets:
     - name: mlflow-artifacts
       policy: none
+    - name: loki-chunks
+      policy: none
+      purge: false
+    - name: loki-ruler
+      policy: none
+      purge: false
+    - name: loki-admin
+      policy: none
+      purge: false
   persistence:
     enabled: true
     size: 10Gi
@@ -234,8 +243,107 @@ kube-prometheus-stack:
   grafana:
     admin:
       existingSecret: grafana-admin-secret
+    additionalDataSources:
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://data-platform-loki-gateway.data-platform.svc.cluster.local
+        jsonData:
+          httpHeaderName1: "X-Scope-OrgID"
+        secureJsonData:
+          httpHeaderValue1: "orgID"
 
   prometheus:
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
       podMonitorSelectorNilUsesHelmValues: false
+
+loki:
+  enabled: true
+
+  deploymentMode: SingleBinary
+  loki:
+    auth_enabled: false
+
+    commonConfig:
+      replication_factor: 1
+
+    server:
+      http_listen_port: 3100
+      grpc_listen_port: 9095
+
+    ingester:
+      lifecycler:
+        ring:
+          kvstore:
+            store: memberlist
+
+    storage:
+      type: s3
+      bucketNames:
+        chunks: loki-chunks
+        ruler: loki-ruler
+        admin: loki-admin
+      s3:
+        secretAccessKey: minioadminaws
+        accessKeyId: minioadmin1234aws
+
+    schemaConfig:
+      configs:
+        - from: "2024-04-01"
+          index:
+            period: 24h
+            prefix: index_
+          object_store: 'filesystem'
+          schema: v13
+          store: tsdb
+
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: local-path
+    
+alloy:
+  enabled: true
+
+  alloy:
+    configMap:
+      name: 'data-platform-alloy-config'
+      content: |
+        discovery.kubernetes "pods" {
+          role = "pod"
+        }
+
+        discovery.relabel "pods" {
+          targets = discovery.kubernetes.pods.targets
+          rule {
+            source_labels = ["__meta_kubernetes_namespace"]
+            target_label  = "namespace"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_name"]
+            target_label  = "container"
+          }
+        }
+
+        loki.source.kubernetes "pods" {
+          targets    = discovery.relabel.pods.output
+          forward_to = [loki.process.labels.receiver]
+        }
+
+        loki.process "labels" {
+          forward_to = [loki.write.loki.receiver]
+
+          stage.static_labels {
+            values = {
+              cluster   = "local",
+              namespace = env("KUBERNETES_NAMESPACE"),
+            }
+          }
+        }
+
+        loki.write "loki" {
+          endpoint {
+            url = "http://data-platform-loki-gateway.data-platform.svc.cluster.local/loki/api/v1/push"
+          }
+        }
