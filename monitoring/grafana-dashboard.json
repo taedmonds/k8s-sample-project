@@ -188,6 +188,29 @@
                 { "format": "bytes", "label": "Memory", "logBase": 1, "min": 0 },
                 { "format": "short", "label": "", "logBase": 1, "min": null }
             ]
+        },
+        {
+            "type": "logs",
+            "title": "Application Logs (Loki)",
+            "gridPos": { "x": 0, "y": 40, "w": 24, "h": 10 },
+            "options": {
+                "showLabels": true,
+                "showTime": true,
+                "sortOrder": "Ascending",
+                "wrapLogMessage": false,
+                "dedupStrategy": "none"
+            },
+            "targets": [
+                {
+                    "refId": "A",
+                    "expr": "{namespace=\"$namespace\"}",
+                    "queryType": "range",
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "Loki"
+                    }
+                }
+            ]
         }
     ]
 }
