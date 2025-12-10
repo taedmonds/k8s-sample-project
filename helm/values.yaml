@@ -310,27 +310,40 @@ alloy:
     configMap:
       name: 'data-platform-alloy-config'
       content: |
-        loki.write "loki" {
-          endpoint {
-            url = "http://data-platform-loki-gateway.data-platform.svc.cluster.local/loki/api/v1/push"
-          }
-        }
-
         discovery.kubernetes "pods" {
           role = "pod"
         }
 
+        discovery.relabel "pods" {
+          targets = discovery.kubernetes.pods.targets
+          rule {
+            source_labels = ["__meta_kubernetes_namespace"]
+            target_label  = "namespace"
+          }
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_name"]
+            target_label  = "container"
+          }
+        }
+
         loki.source.kubernetes "pods" {
-          targets    = discovery.kubernetes.pods.targets
-          forward_to = [loki.write.loki.receiver]
+          targets    = discovery.relabel.pods.output
+          forward_to = [loki.process.labels.receiver]
         }
 
         loki.process "labels" {
           forward_to = [loki.write.loki.receiver]
+
           stage.static_labels {
             values = {
-              namespace = env("KUBERNETES_NAMESPACE"),
               cluster   = "local",
+              namespace = env("KUBERNETES_NAMESPACE"),
             }
+          }
+        }
+
+        loki.write "loki" {
+          endpoint {
+            url = "http://data-platform-loki-gateway.data-platform.svc.cluster.local/loki/api/v1/push"
           }
         }
