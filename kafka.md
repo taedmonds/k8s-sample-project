@@ -2,6 +2,8 @@
 
 This deploys Apache Kafka using the Strimzi Helm chart.
 
+[values.yaml](https://github.com/strimzi/strimzi-kafka-operator/tree/main/helm-charts/helm3/strimzi-kafka-operator)
+
 ---
 
 ## 1. Create Namespace
@@ -40,7 +42,7 @@ kubectl get kafka -n kafka
 
 ## 4. Test Kafka Producer & Consumer
 
-Replace my-kraft-cluster with your actual cluster name (if different).
+Replace kraft-cluster with your actual cluster name (if different).
 
 ### Producer
 ```sh
@@ -48,7 +50,7 @@ kubectl -n kafka run kafka-producer \
   -ti --image=quay.io/strimzi/kafka:0.42.0-kafka-3.7.1 \
   --rm=true --restart=Never \
   -- bin/kafka-console-producer.sh \
-  --bootstrap-server my-kraft-cluster-kafka-bootstrap:9092 \
+  --bootstrap-server dp-kraft-cluster-kafka-bootstrap:9092 \
   --topic my-topic
 ```
 
@@ -58,7 +60,7 @@ kubectl -n kafka run kafka-consumer \
   -ti --image=quay.io/strimzi/kafka:0.42.0-kafka-3.7.1 \
   --rm=true --restart=Never \
   -- bin/kafka-console-consumer.sh \
-  --bootstrap-server my-kraft-cluster-kafka-bootstrap:9092 \
+  --bootstrap-server dp-kraft-cluster-kafka-bootstrap:9092 \
   --topic my-topic --from-beginning
 ```
 ---

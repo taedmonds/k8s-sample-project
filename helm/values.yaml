@@ -3,6 +3,11 @@ global:
 
 mongodb:
   fullnameOverride: mongodb
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
   image:
     repository: bitnami/mongodb
     pullPolicy: IfNotPresent
@@ -59,6 +64,10 @@ mongodb:
 
 minio:
   enabled: true
+  metrics:
+    serviceMonitor:
+      enabled: true
+
   image:
     repository: minio/minio
     pullPolicy: IfNotPresent
@@ -83,7 +92,11 @@ minio:
     port: 9000
 
 postgresql:
-  namespace: data-platform
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
   auth:
     enablePostgresUser: true
     existingSecret: postgres-database-secret
@@ -104,6 +117,16 @@ postgresql:
             CREATE USER mlflow WITH PASSWORD 'mlflow_password' SUPERUSER;
 
 mlflow:
+  serviceMonitor:
+    enabled: true
+    namespace: data-platform
+    labels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: data-platform
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: mlflow
+      release: data-platform
+
   replicaCount: 1
   service:
     type: ClusterIP
@@ -180,7 +203,7 @@ mlflow:
   ingress:
     enabled: false
 
-kafka:
+strimzi-kafka-operator:
   replicas: 1
 
   watchNamespaces: ['data-platform']
@@ -203,3 +226,16 @@ kafka:
   readinessProbe:
     initialDelaySeconds: 10
     periodSeconds: 30
+
+monitoring:
+  enabled: true
+
+kube-prometheus-stack:
+  grafana:
+    admin:
+      existingSecret: grafana-admin-secret
+
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false

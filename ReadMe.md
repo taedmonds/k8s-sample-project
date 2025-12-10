@@ -1,16 +1,5 @@
 # Deployment Guides
 
-Deploy the services in the following order:
-
-1. **MongoDB** → [`mongo.md`](./mongo.md)
-2. **PostgreSQL** → [`postgres.md`](./postgres.md)
-3. **MLflow** → [`mlflow.md`](./mlflow.md)
-4. **Kafka** → [`kafka.md`](./kafka.md)
-
-Got you — here is a **very simple and short** Helm deployment section.
-
----
-
 ## Helm Deployment
 
 You have two options to deploy the Data Platform:
@@ -61,7 +50,20 @@ kubectl apply -f artifacts/kafka/ -n data-platform
 #### 7. Undeploy everything with ONE command
 
 ```bash
+kubectl delete -f artifacts/kafka/ -n data-platform
+kubectl delete -f artifacts/secrets/ -n data-platform
+
 helm uninstall data-platform -n data-platform
+```
+
+#### Prometheus & Grafana monitoring
+
+```bash
+# prometheus dashboard
+kubectl port-forward -n kube-prometheus-stack svc/data-platform-kube-prometh-prometheus 9090:9090 -n data-platform
+
+# grafana dashboard
+kubectl port-forward -n kube-prometheus-stack svc/data-platform-grafana 8080:80 -n data-platform
 ```
 
 #### (Optional) Set namespace as default for debug
@@ -69,3 +71,14 @@ helm uninstall data-platform -n data-platform
 ```bash
 kubectl config set-context --current --namespace=data-platform
 ```
+
+---
+
+## Individual Services
+
+Deploy the services in the following order:
+
+1. **MongoDB** → [`mongo.md`](./mongo.md)
+2. **PostgreSQL** → [`postgres.md`](./postgres.md)
+3. **MLflow** → [`mlflow.md`](./mlflow.md)
+4. **Kafka** → [`kafka.md`](./kafka.md)

@@ -1,10 +1,10 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaNodePool
 metadata:
-  name: pool-a
+  name: broker-controller-pool
   namespace: kafka
   labels:
-    strimzi.io/cluster: my-kraft-cluster
+    strimzi.io/cluster: dp-kraft-cluster
 spec:
   replicas: 3
   roles:
@@ -23,7 +23,7 @@ spec:
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: my-kraft-cluster
+  name: dp-kraft-cluster
   namespace: kafka
   annotations:
     strimzi.io/node-pools: enabled

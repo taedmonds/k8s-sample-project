@@ -17,6 +17,7 @@ echo "=== 4. Updating Helm dependencies ==="
 helm dependency update ./helm
 
 echo "=== 5. Deploying Helm chart ==="
+sleep 5
 helm upgrade --install data-platform ./helm --namespace "$NAMESPACE"
 
 echo "=== Waiting for Strimzi operator pod to be ready ==="
