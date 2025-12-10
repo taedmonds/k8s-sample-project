@@ -58,13 +58,31 @@ helm uninstall data-platform -n data-platform
 
 #### Prometheus & Grafana monitoring
 
-```bash
-# prometheus dashboard
-kubectl port-forward -n kube-prometheus-stack svc/data-platform-kube-prometh-prometheus 9090:9090 -n data-platform
+**Prometheus**
 
-# grafana dashboard
-kubectl port-forward -n kube-prometheus-stack svc/data-platform-grafana 8080:80 -n data-platform
+```bash
+kubectl port-forward -n kube-prometheus-stack \
+  svc/data-platform-kube-prometh-prometheus 9090:9090 -n data-platform
 ```
+
+Opens Prometheus at: [http://localhost:9090](http://localhost:9090)
+
+**Grafana**
+
+```bash
+kubectl port-forward -n kube-prometheus-stack \
+  svc/data-platform-grafana 8080:80 -n data-platform
+```
+
+Opens Grafana at: [http://localhost:8080](http://localhost:8080)
+
+#### Load the Dashboard
+
+Import the custom Grafana dashboard from:
+
+`monitoring/grafana-dashboard.json`
+
+via **Grafana → Dashboards → Import**.
 
 #### (Optional) Set namespace as default for debug
 
